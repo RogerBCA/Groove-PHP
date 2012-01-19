@@ -114,7 +114,6 @@ function prep_token($method, $token, $with) {
 }
 
 
-
 // Strings 
 $Useragent = "Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1";
 $Referer = "http://grooveshark.com/JSQueue.swf?20110216.04";
@@ -122,6 +121,7 @@ $Referer = "http://grooveshark.com/JSQueue.swf?20110216.04";
 
 
 // GEN TOKEN 
+
 
 function gen_token()
 {
@@ -133,7 +133,7 @@ if ($_SESSION["id"] == FALSE)
 $opts = array (
 	'http' => array (
 		'max_redirects' => 3,
-		'ignore_errors'
+		'ignore_errors' => 1
 	)
 );
 stream_context_get_default($opts);
@@ -354,10 +354,10 @@ echo '	<script type="text/javascript">
 
         <center><div style="margin:40px 30%; width:300px; -moz-border-radius: 10px; -webkit-border-radius: 10px; border-radius: 10px; height: 170px; background: url(images/groove.jpg) no-repeat; "></div></center>
 
-	<div data-role="fieldcontain" style="margin-top:0%; margin-left:30%">
+	<div data-role="fieldcontain">
 	<form type="GET">
 	<input type="hidden" name="page" value="search" />
-        <input type="search" name="query" id="search" onclick="autocomplete_off()" value="" />
+        <center><input type="search" name="query" id="search" onclick="autocomplete_off()" value="" /></center>
 	</form>
         </div>
 		
