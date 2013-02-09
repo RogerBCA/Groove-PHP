@@ -115,7 +115,7 @@ function prep_token($method, $token, $with) {
 
 
 // Strings 
-$Useragent = "Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1";
+$Useragent = "Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/17.0.1";
 $Referer = "http://grooveshark.com/JSQueue.swf?20110216.04";
 
 
@@ -132,13 +132,15 @@ if ($_SESSION["id"] == FALSE)
 	{
 $opts = array (
 	'http' => array (
+        'proxy' => 'tcp://95.173.88.21:8080',
+        'request_fulluri' => True,
 		'max_redirects' => 3,
 		'ignore_errors' => 1
 	)
 );
 stream_context_get_default($opts);
 $header = get_headers("http://html5.grooveshark.com");
-$id = substr($header[5], 22, 32);
+$id = substr($header[6], 22, 32);
 $_SESSION["id"] = $id;
 $secretKey = md5($id);
 $_SESSION["secretKey"] = $secretKey;
@@ -163,10 +165,12 @@ $p["method"] = "getCommunicationToken";
 $p["parameters"]["secretKey"] = $_SESSION["secretKey"];
 $p["header"] = $h;
 $p["header"]["client"] = "htmlshark";
-$p["header"]["clientRevision"] = $groovefix->htmlshark->GrooveClientRevision;;
+$p["header"]["clientRevision"] = $groovefix->htmlshark->GrooveClientRevision;
 
 $opts = array (
 	'http' => array (
+        'proxy' => 'tcp://95.173.88.21:8080',
+        'request_fulluri' => True,
 		'method' => "POST",
 		'header' => "User-Agent: $Useragent\r\n" .
 		"Accept-Encoding: gzip\r\n".
@@ -178,7 +182,7 @@ $opts = array (
 );
 
 $context = stream_context_create($opts);
-$file = file_get_contents('http://grooveshark.com/more.php', false, $context);
+$file = file_get_contents('https://grooveshark.com/more.php', false, $context);
 $decode = json_decode(gzdecode($file));
 // Got TOKEN
 $token = $decode->result;
@@ -254,9 +258,9 @@ function getSearchResultsEx($song,$type)
 	global $h, $groovefix;
 	$s["header"] = $h;
 	$s["header"]["clientRevision"] = $groovefix->htmlshark->GrooveClientRevision;
-	$s["header"]["token"] = prep_token("getSearchResultsEx", $_SESSION["token"], $groovefix->htmlshark->GrooveStaticRandomizer);
+	$s["header"]["token"] = prep_token("getResultsFromSearch", $_SESSION["token"], $groovefix->htmlshark->GrooveStaticRandomizer);
 	$s["header"]["client"] = "htmlshark";
-	$s["method"] = "getSearchResultsEx";
+	$s["method"] = "getResultsFromSearch";
 	$s["parameters"]["type"] = $type;
 	$s["parameters"]["query"] = $song;
 
@@ -273,9 +277,10 @@ function getSearchResultsEx($song,$type)
 	);
 
 	$contexts = stream_context_create($option);
-	$file2 = file_get_contents('http://grooveshark.com/more.php?getSearchResultsEx', false, $contexts);
-	$result = json_decode(gzdecode($file2));
-	if ($result->fault->code == "256") {$_SESSION["uuid"] = FALSE; $_SESSION["id"]=FALSE; $_SESSION["token"] = FALSE; gen_token(); getSearchResultsEx($song,$type); }
+	$file2 = file_get_contents('http://cowbell.grooveshark.com/more.php?getSearchResults', false, $contexts);
+    $result = json_decode(gzdecode($file2));
+	if ($result->fault->code == "256") {$_SESSION["uuid"] = FALSE; $_SESSION["id"]=FALSE; $_SESSION["token"] = FALSE; gen_token(); getSearchResultsEx($song,$type); 
+    }
 	else
 	{
 	echo '<ul data-role="listview">';
@@ -377,15 +382,6 @@ echo '</div>';
 }
 elseif($_GET["page"] == "download")
 {
-echo '
-<script>
-function set_time(){
-document.getElementById("audio2").currentTime = 70;
-}
-function play_ended(){
-$(\'#player\').html("<audio id=\'audio2\' onplay=\'set_time();\' autoplay=\'autoplay\'style=\'padding-top:2%;\' controls=\'controls\' src=\'music/'.str_replace(' ','%20',$_GET["filename"]).'\'></audio> <br /> <a data-ajax=\'false\'href=\'music/'.str_replace(' ','%20',$_GET["filename"]).'\'><img src=\'images/download_small.gif\'>Download</a>");
-}
-</script>';
 echo '<div data-role="header">
       <a href="index.php" data-icon="back">Home</a>
 		<h1>GroovePHP - Download</h1>

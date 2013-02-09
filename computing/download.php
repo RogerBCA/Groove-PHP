@@ -2,21 +2,28 @@
 session_start();
 if ( count($_SESSION) >= 1 AND $_GET["type"] == "js")
 {
-?>
+
+echo "
 $(function(){
-	$(window).bind("load", function(){
+	$(window).bind(\"load\", function(){
 	$.ajax({
   	url: 'computing/download.php?type=download'
+	}).success(function() { $('#player').html(\"<audio autoplay=\'autoplay\'style=\'padding-top:2%;\' controls=\'controls\' src=\'music/".str_replace(' ','%20',$_SESSION["filename"])."\'></audio> <br /> <a data-ajax=\'false\'href=\'music/".str_replace(' ','%20',$_SESSION["filename"])."\'><img src=\'images/download_small.gif\'>Download</a>\");});
 	});
-	});
-})
-<?php
+}) 
+
+";
+
+
 }
-if ($_GET["type"] == "download" AND count($_SESSION) >= 1)
+if ($_GET["type"] == "download" AND count($_SESSION) >= 1 AND $_SESSION["filename"] != FALSE)
 {
 
-if (is_dir("music") == false) {
-		mkdir("music", 0777);
+if (!file_exists('../music/' . $_SESSION["filename"]))
+{
+
+if (is_dir("../music") == false) {
+		mkdir("../music", 0777);
 	}
 
 $groovefix = json_decode(file_get_contents("../GrooveFix.json"));
@@ -88,7 +95,7 @@ $ps["method"] = "getStreamKeyFromSongIDEx";
 $optst = array (
 		'http' => array (
 			'method' => "POST",
-			'header' => "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1\r\n" .
+			'header' => "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20120101 Firefox/17.0.1\r\n" .
 			"Referer: http://grooveshark.com/JSQueue.swf?20110216.04\r\n" .
 			"Cookie: PHPSESSID=".$_SESSION["id"]."\r\n" .
 			"Content-Type: application/json\r\n",
@@ -112,6 +119,10 @@ $keys = json_decode($file4);
 	curl_exec($ch);
 	curl_close($ch);
 	fclose($fp);
+
+}
+   
+echo "success";
 
 }
 
